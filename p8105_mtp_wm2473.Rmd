@@ -19,12 +19,54 @@ dog =   read_excel("dogweights_07may2022.xlsx") %>%
   select(-notes) %>% 
   pivot_longer(Raisin: Gagne, names_to = "type", values_to = "weight") %>%
   separate(weight, into = c("lbs", "oz"), sep = " ") %>%
-  mutate(Date= as.Date('1899-12-30') + days(Date), weights_lbs = as.numeric(lbs) + as.numeric(oz)/16)
- 
+  mutate(Date= as.Date('1899-12-30') + days(Date), weights_lbs = as.numeric(lbs) + as.numeric(oz)/16) %>% 
+  na.omit()
   
-  
-  
+```
 
-  
+# notes dataframe
+```{r}
+notes_df = 
+  read_excel("dogweights_07may2022.xlsx") %>% 
+   janitor::clean_names() %>%  
+  setNames(c("Date", "Raisin","Simone","Gagne","std", "notes")) %>% 
+    filter(Date != "DATE") %>%
+  mutate(Date= as.Date('1899-12-30') + days(Date)) %>% 
+  select(Date, notes) %>% 
+  drop_na(notes)
+```
+
+#Export both dataframes as CSVs; store in the same directory as the raw data
+```{r}
+write.csv(dog,"./dog_weights_df.csv")
+write.csv(notes_df,"./notes_df.csv")
+```
+
+#Briefly describe the resulting tidy dataset containing weights. How many unique dates are included in the dataset? Make a well-formatted table showing the number of observations for each dog, along with their average weight and the standard deviation
+```{r}
+dog %>%
+  group_by(type, weights_lbs) %>%
+  summarize(num_obs = n(),
+            avg_weight = mean(weights_lbs, na.rm = TRUE),
+            std_weight = sd(weights_lbs, na.rm = TRUE),
+           .groups = 'drop') %>%
+  knitr::kable(digits = 2)
+```
+
+# weights disturbution of each dog
+```{r}
+weightsplot = 
+  dog %>%
+  drop_na(weights_lbs) %>%
+  filter(objects %in% c("raisin", "simone", "gagne")) %>%
+  mutate(objects = forcats::fct_relevel(objects, c("simone", "gagne", "raisin"))) %>% 
+  ggplot(aes(x = weights_lbs, y = objects)) +
+  geom_density_ridges(scale = .85) +
+  labs(
+    title = "Distribution plot",
+    x = "Weight (Lbs)",
+    y = "Dog names"
+  )
+
 ```
 
