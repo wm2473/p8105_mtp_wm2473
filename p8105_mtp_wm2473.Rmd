@@ -7,10 +7,24 @@ date: "2022-10-21"
 ```{r}
 library(tidyverse)
 library(readxl)
+library(lubridate)
 ```
 
+#Import, tidy, and otherwise clean the weight data, omitting notes entered as text.
 ```{r}
 dog =   read_excel("dogweights_07may2022.xlsx") %>% 
-  janitor::clean_names() 
+ janitor::clean_names() %>%  
+  setNames(c("Date", "Raisin","Simone","Gagne","std", "notes")) %>% 
+    filter(Date != "DATE") %>% 
+  select(-notes) %>% 
+  pivot_longer(Raisin: Gagne, names_to = "type", values_to = "weight") %>%
+  separate(weight, into = c("lbs", "oz"), sep = " ") %>%
+  mutate(Date= as.Date('1899-12-30') + days(Date), weights_lbs = as.numeric(lbs) + as.numeric(oz)/16)
+ 
+  
+  
+  
+
+  
 ```
 
