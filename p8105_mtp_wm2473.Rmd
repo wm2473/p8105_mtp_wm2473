@@ -1,0 +1,16 @@
+---
+title: "p8105_mtp_wm2473"
+output: github_document
+date: "2022-10-21"
+---
+# Importing the library
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+```{r}
+dog =   read_excel("dogweights_07may2022.xlsx") %>% 
+  janitor::clean_names() 
+```
+
