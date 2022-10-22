@@ -8,6 +8,8 @@ date: "2022-10-21"
 library(tidyverse)
 library(readxl)
 library(lubridate)
+library(patchwork)
+library(ggridges)
 ```
 
 #Import, tidy, and otherwise clean the weight data, omitting notes entered as text.
@@ -57,16 +59,33 @@ dog %>%
 ```{r}
 weightsplot = 
   dog %>%
-  drop_na(weights_lbs) %>%
-  filter(objects %in% c("raisin", "simone", "gagne")) %>%
-  mutate(objects = forcats::fct_relevel(objects, c("simone", "gagne", "raisin"))) %>% 
-  ggplot(aes(x = weights_lbs, y = objects)) +
-  geom_density_ridges(scale = .85) +
+  arrange(weights_lbs, type) %>% 
+  ggplot(aes(x = type, y = weights_lbs, color = type)) +
+  geom_boxplot() +
   labs(
     title = "Distribution plot",
-    x = "Weight (Lbs)",
-    y = "Dog names"
-  )
+    x = "Dog Types",
+    y = "Weight(lbs)"
+  )+ scale_y_continuous(breaks = c(8,10,12,14,16,18,20))+ scale_color_hue(name = "Name")
 
+weightsplot
+```
+
+# dog's weight vs time
+```{r}
+wt = 
+  dog %>%
+  arrange(weights_lbs, Date) %>% 
+  ggplot(aes(x = Date, y = weights_lbs, color = type)) + geom_point(alpha = .5,scale =3)+ labs(
+    title = "Weight vs Time",
+    x = "Date",
+    y = "Weight(lbs)"
+  ) +scale_x_continuous()
+  theme(legend.position = "bottom")
+wt
+```
+
+```{r}
+weightsplot+wt
 ```
 
