@@ -11,10 +11,16 @@ library(lubridate)
 library(patchwork)
 library(ggridges)
 ```
-
-#Import, tidy, and otherwise clean the weight data, omitting notes entered as text.
+#Counting words
 ```{r}
-dog =   read_excel("dogweights_07may2022.xlsx") %>% 
+wordcountaddin::text_stats("p8105_mtp_YOURUNI.Rmd")
+```
+
+#Problem 1
+```{r}
+# The raw data contain weights of three types of dogs. My goal is make the data more reasonable and readable for analysis by tidy and to clean the weight data and making some plots to see the realtionship of the weights and dog types. 
+
+dog =   read_excel("./data/dogweights_07may2022.xlsx") %>% 
  janitor::clean_names() %>%  
   setNames(c("Date", "Raisin","Simone","Gagne","std", "notes")) %>% 
     filter(Date != "DATE") %>% 
@@ -23,13 +29,13 @@ dog =   read_excel("dogweights_07may2022.xlsx") %>%
   separate(weight, into = c("lbs", "oz"), sep = " ") %>%
   mutate(Date= as.Date('1899-12-30') + days(Date), weights_lbs = as.numeric(lbs) + as.numeric(oz)/16) %>% 
   na.omit()
-  
+# After import data, I found that the columns name represents the dog types is messy. So I rename all the columns according to their original names. And I found that the weight column containing two units. I separate them into "lbs" and "oz", then combining them into the weights_lbs as total weight. The date column is the number from excel and I convert them into date based on the windows stating date. Finally I dropped NA value from the data set and remove the note column for the next question.  
 ```
 
-# notes dataframe
+# notes dataframe(second)
 ```{r}
 notes_df = 
-  read_excel("dogweights_07may2022.xlsx") %>% 
+  read_excel("./data/dogweights_07may2022.xlsx") %>% 
    janitor::clean_names() %>%  
   setNames(c("Date", "Raisin","Simone","Gagne","std", "notes")) %>% 
     filter(Date != "DATE") %>%
@@ -38,11 +44,13 @@ notes_df =
   drop_na(notes)
 ```
 
-#Export both dataframes as CSVs; store in the same directory as the raw data
+#Export both dataframes as CSVs; store in the same dog directory as the raw data
 ```{r}
-write.csv(dog,"./dog_weights_df.csv")
-write.csv(notes_df,"./notes_df.csv")
+write.csv(dog,"./data/dog_weights_df.csv")
+write.csv(notes_df,"./data/notes_df.csv")
 ```
+
+
 
 #Briefly describe the resulting tidy dataset containing weights. How many unique dates are included in the dataset? Make a well-formatted table showing the number of observations for each dog, along with their average weight and the standard deviation
 ```{r}
