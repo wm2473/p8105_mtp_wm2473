@@ -29,6 +29,7 @@ dog =   read_excel("./data/dogweights_07may2022.xlsx") %>%
   separate(weight, into = c("lbs", "oz"), sep = " ") %>%
   mutate(Date= as.Date('1899-12-30') + days(Date), weights_lbs = as.numeric(lbs) + as.numeric(oz)/16) %>% 
   na.omit()
+dog
 # After import data, I found that the columns name represents the dog types is messy. So I rename all the columns according to their original names. And I found that the weight column containing two units. I separate them into "lbs" and "oz", then combining them into the weights_lbs as total weight. The date column is the number from excel and I convert them into date based on the windows stating date. Finally I dropped NA value from the data set and remove the note column for the next question.  
 ```
 
@@ -42,6 +43,7 @@ notes_df =
   mutate(Date= as.Date('1899-12-30') + days(Date)) %>% 
   select(Date, notes) %>% 
   drop_na(notes)
+notes_df
 ```
 
 #Export both dataframes as CSVs; store in the same dog directory as the raw data
@@ -62,7 +64,7 @@ nrow(dog)
 # Summary table: containing average and standard deviation of weights
 ```{r}
 dog %>%
-  group_by(type, weights_lbs) %>%
+  group_by(type) %>%
   summarize(num_obs = n(),
             avg_weight = mean(weights_lbs, na.rm = TRUE),
             std_weight = sd(weights_lbs, na.rm = TRUE),
@@ -92,14 +94,14 @@ weightsplot
 wt = 
   dog %>%
   arrange(weights_lbs, Date) %>% 
-  ggplot(aes(x = Date, y = weights_lbs, color = type)) + geom_point(alpha = .5,scale =3)+ labs(
+  ggplot(aes(x = Date, y = weights_lbs, color = type)) + geom_point(alpha = .5,scale =5)+ labs(
     title = "Weight vs Time",
     x = "Date",
     y = "Weight(lbs)"
   ) +scale_x_continuous()+  scale_x_date(
     date_breaks = "5 months",
-    date_labels = "%y-%m")
-  theme(legend.position = "bottom")
+    date_labels = "%y-%m")+
+  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 0))
 wt
 ```
 
